@@ -20,11 +20,16 @@ public:
 	{
 		ImGui::SFML::Shutdown();
 	}
-	void loadGameBoard();
+
 	void run();
 	void render();
 	void handleEvents();
 	void initOptionMenu();
+
+
+
+private:
+	void loadGameBoard();
 
 private:
 	sf::RenderWindow m_window;

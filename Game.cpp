@@ -2,7 +2,7 @@
 
 void Game::loadGameBoard()
 {
-	// Resize the grid
+
 	grid.resize(grid_width, std::vector<bool>(grid_height));
 
 	// Seed the random number generator
@@ -10,7 +10,6 @@ void Game::loadGameBoard()
 	std::mt19937 gen(rd());
 	std::uniform_int_distribution<> dis(0, 1);
 
-	// Iterate through the grid and set each cell to a random state
 	for (int x = 0; x < grid_width; x++)
 	{
 		for (int y = 0; y < grid_height; y++)
