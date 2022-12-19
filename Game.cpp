@@ -181,7 +181,7 @@ void Game::initOptionMenu()
 		m_startGame = !m_startGame;
 	}
 	ImGui::SameLine();
-	if (generation_counter > 1 && !m_startGame) {
+	if (!m_startGame) {
 		if (ImGui::Button("Reset grid")) {
 			generation_counter = 0;
 			loadGameBoard();
