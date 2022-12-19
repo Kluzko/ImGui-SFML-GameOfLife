@@ -1,5 +1,26 @@
 #include "Game.h"
 
+void Game::loadGameBoard()
+{
+	// Resize the grid
+	grid.resize(grid_width, std::vector<bool>(grid_height));
+
+	// Seed the random number generator
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_int_distribution<> dis(0, 1);
+
+	// Iterate through the grid and set each cell to a random state
+	for (int x = 0; x < grid_width; x++)
+	{
+		for (int y = 0; y < grid_height; y++)
+		{
+			grid[x][y] = (dis(gen) == 1);
+		}
+	}
+
+}
+
 void Game::run()
 {
 	sf::Clock deltaClock;
@@ -39,7 +60,17 @@ void Game::render()
 		{
 			sf::RectangleShape cell(sf::Vector2f(cell_size, cell_size));
 			cell.setPosition(grid_x + i * cell_size, grid_y + j * cell_size);
-			cell.setFillColor(sf::Color::White);
+
+			// Set the cell's fill color based on its state
+			if (grid[i][j])
+			{
+				cell.setFillColor(sf::Color::Black);
+			}
+			else
+			{
+				cell.setFillColor(sf::Color::White);
+			}
+
 			cell.setOutlineThickness(1.0f);
 			cell.setOutlineColor(sf::Color::Black);
 
@@ -47,6 +78,8 @@ void Game::render()
 		}
 	}
 }
+
+
 
 
 void Game::handleEvents()
@@ -72,8 +105,12 @@ void Game::initOptionMenu()
 	ImGui::Separator();
 	if (!m_startGame) {
 		ImGui::Text("Game board settings");
-		ImGui::SliderInt("Grid width", &grid_width, 60, 120);
-		ImGui::SliderInt("Grid height", &grid_height, 60, 120);
+		if (
+			ImGui::SliderInt("Grid width", &grid_width, 60, 120) ||
+			ImGui::SliderInt("Grid height", &grid_height, 60, 120)) {
+			// pass here load game board to avoid vector subscript out of range error
+			loadGameBoard();
+		}
 	}
 	else {
 		ImGui::Text("Stop the game to change settings");

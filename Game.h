@@ -3,6 +3,7 @@
 #include <imgui-SFML.h>
 #include <SFML/Graphics.hpp>
 #include <vector>
+#include <random>
 
 class Game
 {
@@ -12,14 +13,14 @@ public:
 	{
 		ImGui::SFML::Init(m_window);
 
-		// Initialize the game board
-		grid.resize(grid_width, std::vector<bool>(grid_height));
+		// Initialize the game board with a random pattern of live and dead cells
+		loadGameBoard();
 	}
 	~Game()
 	{
 		ImGui::SFML::Shutdown();
 	}
-
+	void loadGameBoard();
 	void run();
 	void render();
 	void handleEvents();
