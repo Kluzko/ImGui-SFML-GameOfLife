@@ -23,6 +23,7 @@ public:
 
 	void run();
 	void render();
+	void update();
 	void handleEvents();
 	void initOptionMenu();
 
@@ -30,6 +31,7 @@ public:
 
 private:
 	void loadGameBoard();
+	int getLiveNeighbors(int x, int y);
 
 private:
 	sf::RenderWindow m_window;
