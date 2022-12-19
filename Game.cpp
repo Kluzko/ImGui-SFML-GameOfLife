@@ -49,8 +49,7 @@ void Game::render()
 	// Calculate the aspect ratio of the window
 	float window_aspect_ratio = static_cast<float>(window_width) / window_height;
 
-	// Set the size of the cells based on the window size and the number of cells
-	cell_size = std::min(window_width / grid_width, window_height / grid_height);
+
 
 	// Calculate the width and height of the grid in pixels
 	int grid_width_pixels = grid_width * cell_size;
@@ -209,7 +208,11 @@ void Game::initOptionMenu()
 		m_startGame = !m_startGame;
 	}
 
+
+	ImGui::Spacing();
 	ImGui::Separator();
+	ImGui::Spacing();
+
 	if (!m_startGame) {
 		ImGui::Text("Game board settings");
 		if (ImGui::SliderInt("Grid width", &grid_width, 60, 120) || ImGui::SliderInt("Grid height", &grid_height, 40, 120)) {
@@ -219,6 +222,25 @@ void Game::initOptionMenu()
 	else {
 		ImGui::Text("Stop the game to change settings");
 	}
+
+	ImGui::Spacing();
+	ImGui::Separator();
+	ImGui::Spacing();
+
+	if (ImGui::Button("Show Game rules")) {
+		ImGui::OpenPopup("Show Game rules");
+	}
+
+	if (ImGui::BeginPopupModal("Show Game rules", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		ImGui::Text("Conway's Game of Life is a cellular automaton game created by John Horton Conway in 1970.\nThe game is played on a grid of cells, where each cell can be either alive or dead. \nThe state of the cells is determined by a set of rules that determine how the cells evolve \nfrom one generation to the next. The rules are as follows:\n\n- Any live cell with two or three live neighbors survives to the next generation.\n- Any dead cell with exactly three live neighbors becomes a live cell.\n- All other cells die or remain dead.");
+		if (ImGui::Button("Close")) {
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::EndPopup();
+	}
+	ImGui::Spacing();
+
 
 	// Calculate the new size of the cells based on the grid size and window size
 	int window_width = m_window.getSize().x;
