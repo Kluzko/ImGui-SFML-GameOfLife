@@ -4,7 +4,7 @@
 
 int main()
 {
-	Game game(800, 800, "Game of life");
+	Game game(1000, 800, "Game of life");
 	game.run();
 	return 0;
 }

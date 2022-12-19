@@ -5,6 +5,7 @@
 #include <vector>
 #include <random>
 
+
 class Game
 {
 public:
@@ -44,4 +45,8 @@ private:
 
 	// Cell size, in pixels
 	int cell_size = 10;
+
+	int generation_counter = 0;
+	bool remain_cell_alive = true;
+	int pauseGeneration = 200;
 };

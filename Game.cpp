@@ -92,6 +92,12 @@ void Game::update()
 {
 	if (!m_startGame)
 	{
+
+		return;
+	}
+
+	if (!remain_cell_alive && generation_counter >= pauseGeneration) {
+		m_startGame = false;
 		return;
 	}
 
@@ -109,8 +115,6 @@ void Game::update()
 			// Update the state of the current cell based on the number of live neighbors
 			if (grid[x][y])
 			{
-				// Any live cell with fewer than two live neighbors dies, as if by underpopulation.
-				// Any live cell with more than three live neighbors dies, as if by overpopulation.
 				if (live_neighbors < 2 || live_neighbors > 3)
 				{
 					new_grid[x][y] = false;
@@ -129,58 +133,26 @@ void Game::update()
 
 	// Update the game board with the new state of the cells
 	grid = new_grid;
+	generation_counter++;
+
 }
+
 
 int Game::getLiveNeighbors(int x, int y)
 {
 	int live_neighbors = 0;
+	int dx[8] = { -1, -1, -1, 0, 0, 1, 1, 1 };
+	int dy[8] = { -1, 0, 1, -1, 1, -1, 0, 1 };
 
-	// Check the top-left neighbor
-	if (x > 0 && y > 0 && grid[x - 1][y - 1])
+	for (int i = 0; i < 8; i++)
 	{
-		live_neighbors++;
-	}
+		int nx = x + dx[i];
+		int ny = y + dy[i];
 
-	// Check the top neighbor
-	if (y > 0 && grid[x][y - 1])
-	{
-		live_neighbors++;
-	}
-
-	// Check the top-right neighbor
-	if (x < grid_width - 1 && y > 0 && grid[x + 1][y - 1])
-	{
-		live_neighbors++;
-	}
-
-	// Check the left neighbor
-	if (x > 0 && grid[x - 1][y])
-	{
-		live_neighbors++;
-	}
-
-	// Check the right neighbor
-	if (x < grid_width - 1 && grid[x + 1][y])
-	{
-		live_neighbors++;
-	}
-
-	// Check the bottom-left neighbor
-	if (x > 0 && y < grid_height - 1 && grid[x - 1][y + 1])
-	{
-		live_neighbors++;
-	}
-
-	// Check the bottom neighbor
-	if (y < grid_height - 1 && grid[x][y + 1])
-	{
-		live_neighbors++;
-	}
-
-	// Check the bottom-right neighbor
-	if (x < grid_width - 1 && y < grid_height - 1 && grid[x + 1][y + 1])
-	{
-		live_neighbors++;
+		if (nx >= 0 && ny >= 0 && nx < grid_width && ny < grid_height && grid[nx][ny])
+		{
+			live_neighbors++;
+		}
 	}
 
 	return live_neighbors;
@@ -204,9 +176,19 @@ void Game::initOptionMenu()
 	ImGui::Begin("Option Menu");
 
 	ImGui::Text("Game state");
+
 	if (ImGui::Button(m_startGame ? "Stop" : "Start")) {
 		m_startGame = !m_startGame;
 	}
+	ImGui::SameLine();
+	if (generation_counter > 1 && !m_startGame) {
+		if (ImGui::Button("Reset grid")) {
+			generation_counter = 0;
+			loadGameBoard();
+		}
+	}
+
+
 
 
 	ImGui::Spacing();
@@ -218,9 +200,24 @@ void Game::initOptionMenu()
 		if (ImGui::SliderInt("Grid width", &grid_width, 60, 120) || ImGui::SliderInt("Grid height", &grid_height, 40, 120)) {
 			loadGameBoard();
 		}
+
+		ImGui::Spacing();
+
+		ImGui::Checkbox("Allow cells remain alive", &remain_cell_alive);
+		ImGui::Spacing();
+		if (!remain_cell_alive) {
+			if (generation_counter > 1) {
+				generation_counter = 0;
+				loadGameBoard();
+			}
+
+			ImGui::Text("Choose how many generations will be simulated");
+			ImGui::SliderInt("Generation", &pauseGeneration, 200, 100000);
+		}
 	}
 	else {
 		ImGui::Text("Stop the game to change settings");
+		ImGui::Text("Generation: %d", generation_counter);
 	}
 
 	ImGui::Spacing();
