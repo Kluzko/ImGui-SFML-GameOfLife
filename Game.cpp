@@ -39,25 +39,9 @@ void Game::run()
 
 void Game::render()
 {
-	// Get the size of the window
-	int window_width = m_window.getSize().x;
-	int window_height = m_window.getSize().y;
-
-	// Calculate the aspect ratio of the grid
-	float grid_aspect_ratio = static_cast<float>(grid_width) / grid_height;
-
-	// Calculate the aspect ratio of the window
-	float window_aspect_ratio = static_cast<float>(window_width) / window_height;
-
-
-
-	// Calculate the width and height of the grid in pixels
-	int grid_width_pixels = grid_width * cell_size;
-	int grid_height_pixels = grid_height * cell_size;
-
-	// Calculate the top-left corner of the grid based on the window size and grid size
-	int grid_x = (window_width - grid_width_pixels) / 2;
-	int grid_y = (window_height - grid_height_pixels) / 2;
+	// Calculate the dimensions and position of the grid
+	sf::Vector2i grid_size = calculateGridSize();
+	sf::Vector2i grid_position = calculateGridPosition(grid_size);
 
 
 	sf::RectangleShape cell(sf::Vector2f(cell_size, cell_size));
@@ -69,30 +53,19 @@ void Game::render()
 		for (int j = 0; j < grid_height; j++)
 		{
 			// Set the cell's position
-			cell.setPosition(grid_x + i * cell_size, grid_y + j * cell_size);
-
+			cell.setPosition(grid_position.x + i * cell_size, grid_position.y + j * cell_size);
 			// Set the cell's fill color based on its state
-			if (grid[i][j])
-			{
-				cell.setFillColor(sf::Color::Black);
-			}
-			else
-			{
-				cell.setFillColor(sf::Color::White);
-			}
-
+			cell.setFillColor(grid[i][j] ? sf::Color::Black : sf::Color::White);
 			// Draw the cell
 			m_window.draw(cell);
 		}
 	}
 }
 
-
 void Game::update()
 {
 	if (!m_startGame)
 	{
-
 		return;
 	}
 
@@ -132,11 +105,9 @@ void Game::update()
 	}
 
 	// Update the game board with the new state of the cells
-	grid = new_grid;
+	grid = std::move(new_grid);
 	generation_counter++;
-
 }
-
 
 int Game::getLiveNeighbors(int x, int y)
 {
@@ -158,6 +129,31 @@ int Game::getLiveNeighbors(int x, int y)
 	return live_neighbors;
 }
 
+sf::Vector2i Game::calculateGridSize()
+{
+	// Calculate the aspect ratio of the grid
+	float grid_aspect_ratio = static_cast<float>(grid_width) / grid_height;
+
+	// Calculate the width and height of the grid in pixels
+	int grid_width_pixels = grid_width * cell_size;
+	int grid_height_pixels = grid_height * cell_size;
+
+	return sf::Vector2i(grid_width_pixels, grid_height_pixels);
+}
+
+sf::Vector2i Game::calculateGridPosition(const sf::Vector2i& grid_size)
+{
+	// Get the size of the window
+	int window_width = m_window.getSize().x;
+	int window_height = m_window.getSize().y;
+
+	// Calculate the top-left corner of the grid based on the window size and grid size
+	int grid_x = (window_width - grid_size.x) / 2;
+	int grid_y = (window_height - grid_size.y) / 2;
+
+	return sf::Vector2i(grid_x, grid_y);
+}
+
 void Game::handleEvents()
 {
 	sf::Event event;
@@ -168,8 +164,6 @@ void Game::handleEvents()
 			m_window.close();
 	}
 }
-
-
 
 void Game::initOptionMenu()
 {
@@ -187,9 +181,6 @@ void Game::initOptionMenu()
 			loadGameBoard();
 		}
 	}
-
-
-
 
 	ImGui::Spacing();
 	ImGui::Separator();
@@ -237,7 +228,6 @@ void Game::initOptionMenu()
 		ImGui::EndPopup();
 	}
 	ImGui::Spacing();
-
 
 	// Calculate the new size of the cells based on the grid size and window size
 	int window_width = m_window.getSize().x;

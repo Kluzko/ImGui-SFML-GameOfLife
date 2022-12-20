@@ -34,6 +34,8 @@ private:
 	void loadGameBoard();
 	int getLiveNeighbors(int x, int y);
 
+	sf::Vector2i calculateGridSize();
+	sf::Vector2i calculateGridPosition(const sf::Vector2i& grid_size);
 private:
 	sf::RenderWindow m_window;
 	bool m_startGame = false;
