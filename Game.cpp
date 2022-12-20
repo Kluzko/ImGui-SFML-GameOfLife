@@ -1,6 +1,6 @@
 #include "Game.h"
 
-void Game::loadGameBoard()
+void Game::load_game_board()
 {
 	// Seed the random number generator
 	std::random_device rd;
@@ -8,8 +8,8 @@ void Game::loadGameBoard()
 	std::uniform_int_distribution<> dis(0, 1);
 
 	// Resize the grid vector and initialize its elements to random values
-	grid.resize(120);
-	for (auto& row : grid) {
+	m_grid.resize(120);
+	for (auto& row : m_grid) {
 		row.resize(120);
 		for (auto cell : row) {
 			cell = (dis(gen) == 1);
@@ -22,11 +22,11 @@ void Game::run()
 	sf::Clock deltaClock;
 	while (m_window.isOpen())
 	{
-		handleEvents();
+		handle_events();
 
 		ImGui::SFML::Update(m_window, deltaClock.restart());
 
-		initOptionMenu();
+		init_option_menu();
 		// Update the game
 		update();
 
@@ -40,8 +40,8 @@ void Game::run()
 void Game::render()
 {
 	// Calculate the dimensions and position of the grid
-	sf::Vector2i grid_size = calculateGridSize();
-	sf::Vector2i grid_position = calculateGridPosition(grid_size);
+	sf::Vector2i grid_size = calculate_grid_size();
+	sf::Vector2i grid_position = calculate_grid_position(grid_size);
 
 
 	sf::RectangleShape cell(sf::Vector2f(m_cell_size, m_cell_size));
@@ -56,7 +56,7 @@ void Game::render()
 			// Set the cell's position
 			cell.setPosition(grid_position.x + i * m_cell_size, grid_position.y + j * m_cell_size);
 			// Set the cell's fill color based on its state
-			cell.setFillColor(grid[i][j] ? sf::Color::Black : sf::Color::White);
+			cell.setFillColor(m_grid[i][j] ? sf::Color::Black : sf::Color::White);
 			// Draw the cell
 			m_window.draw(cell);
 		}
@@ -77,7 +77,7 @@ void Game::update()
 	}
 
 	// Create a copy of the game board to store the new state of the cells
-	std::vector<std::vector<bool>> new_grid = grid;
+	std::vector<std::vector<bool>> new_grid = m_grid;
 
 	// Iterate through the grid and update the state of each cell
 	for (int x = 0; x < m_grid_width; x++)
@@ -85,10 +85,10 @@ void Game::update()
 		for (int y = 0; y < m_grid_height; y++)
 		{
 			// Get the number of live neighbors of the current cell
-			int live_neighbors = getLiveNeighbors(x, y);
+			int live_neighbors = get_live_neighbors(x, y);
 
 			// Update the state of the current cell based on the number of live neighbors
-			if (grid[x][y])
+			if (m_grid[x][y])
 			{
 				if (live_neighbors < 2 || live_neighbors > 3)
 				{
@@ -107,11 +107,11 @@ void Game::update()
 	}
 
 	// Update the game board with the new state of the cells
-	grid = std::move(new_grid);
+	m_grid = std::move(new_grid);
 	m_generation_counter++;
 }
 
-int Game::getLiveNeighbors(int x, int y)
+int Game::get_live_neighbors(int x, int y)
 {
 	int live_neighbors = 0;
 	int dx[8] = { -1, -1, -1, 0, 0, 1, 1, 1 };
@@ -122,7 +122,7 @@ int Game::getLiveNeighbors(int x, int y)
 		int nx = x + dx[i];
 		int ny = y + dy[i];
 
-		if (nx >= 0 && ny >= 0 && nx < m_grid_width && ny < m_grid_height && grid[nx][ny])
+		if (nx >= 0 && ny >= 0 && nx < m_grid_width && ny < m_grid_height && m_grid[nx][ny])
 		{
 			live_neighbors++;
 		}
@@ -131,7 +131,7 @@ int Game::getLiveNeighbors(int x, int y)
 	return live_neighbors;
 }
 
-sf::Vector2i Game::calculateGridSize()
+sf::Vector2i Game::calculate_grid_size()
 {
 	// Calculate the aspect ratio of the grid
 	float grid_aspect_ratio = static_cast<float>(m_grid_width) / m_grid_height;
@@ -143,7 +143,7 @@ sf::Vector2i Game::calculateGridSize()
 	return sf::Vector2i(grid_width_pixels, grid_height_pixels);
 }
 
-sf::Vector2i Game::calculateGridPosition(const sf::Vector2i& grid_size)
+sf::Vector2i Game::calculate_grid_position(const sf::Vector2i& grid_size)
 {
 	// Get the size of the window
 	int window_width = m_window.getSize().x;
@@ -156,7 +156,7 @@ sf::Vector2i Game::calculateGridPosition(const sf::Vector2i& grid_size)
 	return sf::Vector2i(grid_x, grid_y);
 }
 
-void Game::handleEvents()
+void Game::handle_events()
 {
 	sf::Event event;
 	while (m_window.pollEvent(event))
@@ -167,7 +167,7 @@ void Game::handleEvents()
 	}
 }
 
-void Game::initOptionMenu()
+void Game::init_option_menu()
 {
 	ImGui::Begin("Option Menu");
 
@@ -180,7 +180,7 @@ void Game::initOptionMenu()
 	if (!m_startGame) {
 		if (ImGui::Button("Reset grid")) {
 			m_generation_counter = 0;
-			loadGameBoard();
+			load_game_board();
 		}
 	}
 
@@ -191,7 +191,7 @@ void Game::initOptionMenu()
 	if (!m_startGame) {
 		ImGui::Text("Game board settings");
 		if (ImGui::SliderInt("Grid width", &m_grid_width, 60, 120) || ImGui::SliderInt("Grid height", &m_grid_height, 40, 120)) {
-			loadGameBoard();
+			load_game_board();
 		}
 		ImGui::Spacing();
 		ImGui::Checkbox("Allow cells remain alive", &m_remain_cell_alive);
@@ -199,7 +199,7 @@ void Game::initOptionMenu()
 		if (!m_remain_cell_alive) {
 			if (m_generation_counter > 1) {
 				m_generation_counter = 0;
-				loadGameBoard();
+				load_game_board();
 			}
 
 			ImGui::Text("Choose how many generations will be simulated");
