@@ -32,12 +32,13 @@ private:
 	void load_game_board();
 	int get_live_neighbors(int x, int y);
 
+	void update_timer();
+
 	sf::Vector2i calculate_grid_size();
 	sf::Vector2i calculate_grid_position(const sf::Vector2i& grid_size);
 private:
 	sf::RenderWindow m_window;
 	bool m_startGame = false;
-
 
 	int m_grid_width = 70;
 	int m_grid_height = 50;
@@ -47,6 +48,11 @@ private:
 
 	// Cell size, in pixels
 	int m_cell_size = 10;
+
+	// Elapsed time in simulation
+	sf::Time m_elapsed_time = sf::Time::Zero;
+	sf::Clock m_timer;
+	bool m_timer_running = false;
 
 	// Game options
 	int m_generation_counter = 0;

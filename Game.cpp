@@ -54,7 +54,10 @@ void Game::render()
 		for (int j = 0; j < m_grid_height; j++)
 		{
 			// Set the cell's position
-			cell.setPosition(grid_position.x + i * m_cell_size, grid_position.y + j * m_cell_size);
+			float cell_x = static_cast<float>(grid_position.x + i * m_cell_size);
+			float cell_y = static_cast<float>(grid_position.y + j * m_cell_size);
+
+			cell.setPosition(cell_x, cell_y);
 			// Set the cell's fill color based on its state
 			cell.setFillColor(m_grid[i][j] ? sf::Color::Black : sf::Color::White);
 			// Draw the cell
@@ -62,10 +65,12 @@ void Game::render()
 		}
 	}
 }
-sf::Clock deltaClock;
 
 void Game::update()
 {
+
+	update_timer();
+
 	if (!m_startGame)
 	{
 		return;
@@ -131,6 +136,25 @@ int Game::get_live_neighbors(int x, int y)
 	return live_neighbors;
 }
 
+void Game::update_timer()
+{
+
+	if (m_startGame && !m_timer_running) {
+		m_timer.restart();
+		m_timer_running = true;
+	}
+
+	if (!m_startGame && m_timer_running) {
+		m_timer_running = false;
+	}
+
+	// Update the elapsed time 
+	if (m_timer_running) {
+		m_elapsed_time += m_timer.getElapsedTime();
+		m_timer.restart();
+	}
+}
+
 sf::Vector2i Game::calculate_grid_size()
 {
 	// Calculate the aspect ratio of the grid
@@ -180,6 +204,7 @@ void Game::init_option_menu()
 	if (!m_startGame) {
 		if (ImGui::Button("Reset grid")) {
 			m_generation_counter = 0;
+			m_elapsed_time = sf::Time::Zero;
 			load_game_board();
 		}
 	}
@@ -199,6 +224,7 @@ void Game::init_option_menu()
 		if (!m_remain_cell_alive) {
 			if (m_generation_counter > 1) {
 				m_generation_counter = 0;
+				m_elapsed_time = sf::Time::Zero;
 				load_game_board();
 			}
 
@@ -209,6 +235,12 @@ void Game::init_option_menu()
 	else {
 		ImGui::Text("Stop the game to change settings");
 		ImGui::Text("Generation: %d", m_generation_counter);
+
+		int seconds = static_cast<int>(m_elapsed_time.asSeconds());
+		int minutes = seconds / 60;
+		seconds %= 60;
+
+		ImGui::Text("Elapsed time: %02d:%02d", minutes, seconds);
 	}
 
 	ImGui::Spacing();
