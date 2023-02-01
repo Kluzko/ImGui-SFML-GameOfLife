@@ -27,6 +27,10 @@ You can use the toolbar to:
 - Change the grid size: Use the slider to adjust the size of the grid.
 - Set the number of generations: If you uncheck checkbox "Allow cells remain alive" the  number field will appear you can use it  to specify how many generations should be simulated before the simulation stops.
 
+# Preview of simulation
+
+![preview](https://github.com/Kluzko/ImGui-SFML-GameOfLife/blob/master/preview.gif)
+
 # Contributing
 
 If you want to contribute to this project, feel free to submit a pull request. All contributions are welcome, whether they are bug fixes, new features, or just improvements to the codebase.
